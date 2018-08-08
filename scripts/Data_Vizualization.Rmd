@@ -1,0 +1,220 @@
+---
+title: "Data_visualization"
+author: "Ian Greaves"
+date: "8 August 2018"
+output: html_document
+---
+
+#Data:
+For this task I've decided to use the legumes data set.  The data is as follows
+
+'Rhizobes', i.e. bacteria living on plant roots, can increase plant growth. This dataset investigates the effect of different rhizobial strains on legume growth. Variable are as follows:
+
+**Block:** independent experimental 'block'
+
+**Plant:** plant species (Ad: Acacia dealbata; Am: Acacia mearnsii; Dm: Daviesia mimosoides; Gc: Glycine clandestina; Hv: Hardenbergia violacea; Oe: Oxylobium ellipticum)
+
+**Strain:** rhizobial strain (note: values are descriptive strain identifiers, not quantitative measures) 20 strains in total
+
+**Weight:** plant weight at conclusion of experiment.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+```
+
+## Setting up environment
+Loading library dplyr
+
+```{r}
+library(tidyverse)
+```
+
+##Adding in data
+```{r}
+Legumes <- read_csv(file = "data/legume_weights_rhizobia_20str.csv")
+Legumes
+```
+
+##Make Data tidy
+Will make the data tidy by combining the first 3 lists to make a unique identifier.  Will retain all the lists for visualization
+```{r}
+Legumes1 <- Legumes %>%
+  unite(Identifier,Block, Plant, Strain, sep = "_")
+Legumes1
+```
+That didn't work I will use mutate
+```{r}
+Legumes = mutate(Legumes,
+   Identifier = paste(Block, Plant, Strain, sep = '_'))
+Legumes <- Legumes[,c(5,1:4)]
+Legumes
+```
+
+
+## Initial Analysis
+Look at the overall data.
+```{r}
+ggplot(data = Legumes,
+       aes(x = as.factor(Strain), y = weight, colour = Plant)) +
+  geom_point() +
+  labs(
+    x = "Strain",
+    y = "Weight",
+    title = "Figure 1 - All data looking at strains",
+    colour = "Plant"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```  
+Change the grouping to PLant and see if the scatter plot can quickly show which strain was best for each plant
+```{r}
+ggplot(data = Legumes,
+       aes(x = Plant, y = weight, colour = as.factor(Strain))) +
+  geom_point() +
+  labs(
+    x = "Plant",
+    y = "Weight",
+    title = "Figure 1 - All data looking at plants",
+    colour = "Strain"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```
+
+
+Will go back to previous graph and facet by Plant
+```{r}
+ggplot(data = Legumes,
+       aes(x = as.factor(Strain), y = weight)) +
+  geom_point() +
+  facet_wrap(~ Plant) +
+  labs(
+    x = "Strain",
+    y = "Weight",
+    title = "Figure 1 - Separating plants",
+    colour = "Plant"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```
+###Conclusion
+What I know
+
+What I dont know
+
+Check to see if jitter helps the data
+```{r}
+ggplot(data = Legumes,
+       aes(x = as.factor(Strain), y = weight)) +
+  geom_jitter() +
+  facet_wrap(~ Plant) +
+  labs(
+    x = "Strain",
+    y = "Weight",
+    title = "Figure 1 - Jitter",
+    colour = "Plant"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```
+
+Would like to look and see if there is any variation between blocks
+```{r}
+ggplot(data = Legumes,
+       aes(x = Plant, y = weight, colour = Block)) +
+  geom_point(size =1, alpha = 0.5) +
+  facet_wrap(~ Strain) +
+  labs(
+    x = "Plant",
+    y = "Weight",
+    title = "Figure 1 - Looking at Block variation",
+    colour = "Block"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```
+Can't see any obvious differences between blocks
+
+##Stuff NOT to do
+
+To get a feel how each plant has done with each strain I/m giong to use dplyr group by to group by plant and strain and use mean to xummarize the weights.  Data contains NA's so will remove them.
+
+```{r}
+Legumes_Av <-Legumes %>% 
+  drop_na() %>% 
+    group_by(Plant, Strain) %>% 
+    summarise(mean_weight=mean(weight), n=n(), sd = sd(weight),se=sd/sqrt(n))
+
+Legumes_Av
+```
+
+
+
+```{r}
+ggplot(data = Legumes,
+       aes(x = as.factor(Strain), y = weight)) +
+  geom_boxplot() +
+  facet_wrap(~ Plant) +
+  labs(
+    x = "Strain",
+    y = "Weight",
+    title = "Figure 1 - All data",
+    colour = "Plant"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
