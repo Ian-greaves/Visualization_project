@@ -44,7 +44,7 @@ Legumes1 <- Legumes %>%
   unite(Identifier,Block, Plant, Strain, sep = "_")
 Legumes1
 ```
-That didn't work I will use mutate
+That didn't work so I will try mutate instead
 ```{r}
 Legumes = mutate(Legumes,
    Identifier = paste(Block, Plant, Strain, sep = '_'))
@@ -55,7 +55,7 @@ Legumes
 
 ## Initial Analysis
 Look at the overall data.
-```{r}
+```{r, warning=FALSE}
 ggplot(data = Legumes,
        aes(x = as.factor(Strain), y = weight, colour = Plant)) +
   geom_point() +
@@ -72,15 +72,16 @@ ggplot(data = Legumes,
                                     colour = "black")
     )
 ```  
-Change the grouping to PLant and see if the scatter plot can quickly show which strain was best for each plant
-```{r}
+
+Change the grouping to Plant and see if the scatter plot can quickly show which strain was best for each plant
+```{r, warning=FALSE}
 ggplot(data = Legumes,
        aes(x = Plant, y = weight, colour = as.factor(Strain))) +
   geom_point() +
   labs(
     x = "Plant",
     y = "Weight",
-    title = "Figure 1 - All data looking at plants",
+    title = "Figure 2 - All data looking at plants",
     colour = "Strain"
   ) +
   theme(
@@ -91,42 +92,19 @@ ggplot(data = Legumes,
     )
 ```
 
-
-Will go back to previous graph and facet by Plant
-```{r}
+Plot all the data together
+```{r, warning=FALSE}
 ggplot(data = Legumes,
-       aes(x = as.factor(Strain), y = weight)) +
-  geom_point() +
-  facet_wrap(~ Plant) +
+       aes(x = Plant, y = as.factor(Strain), colour = Block, size = weight)) +
+  geom_jitter(alpha = 0.5)+
+  geom_point(size =1) +
+  
   labs(
-    x = "Strain",
-    y = "Weight",
-    title = "Figure 1 - Separating plants",
-    colour = "Plant"
-  ) +
-  theme(
-    panel.grid=element_blank(),
-    axis.text.x = element_text(angle=90),
-    panel.background = element_rect(fill = "white",
-                                    colour = "black")
-    )
-```
-###Conclusion
-What I know
-
-What I dont know
-
-Check to see if jitter helps the data
-```{r}
-ggplot(data = Legumes,
-       aes(x = as.factor(Strain), y = weight)) +
-  geom_jitter() +
-  facet_wrap(~ Plant) +
-  labs(
-    x = "Strain",
-    y = "Weight",
-    title = "Figure 1 - Jitter",
-    colour = "Plant"
+    x = "Plant",
+    y = "Strain",
+    title = "Figure 3 - All the data together",
+    colour = "Block",
+    size = "weight"
   ) +
   theme(
     panel.grid=element_blank(),
@@ -137,7 +115,7 @@ ggplot(data = Legumes,
 ```
 
 Would like to look and see if there is any variation between blocks
-```{r}
+```{r, warning=FALSE}
 ggplot(data = Legumes,
        aes(x = Plant, y = weight, colour = Block)) +
   geom_point(size =1, alpha = 0.5) +
@@ -145,7 +123,7 @@ ggplot(data = Legumes,
   labs(
     x = "Plant",
     y = "Weight",
-    title = "Figure 1 - Looking at Block variation",
+    title = "Figure 4 - Looking at Block variation version 1",
     colour = "Block"
   ) +
   theme(
@@ -155,7 +133,51 @@ ggplot(data = Legumes,
                                     colour = "black")
     )
 ```
-Can't see any obvious differences between blocks
+
+Another look at block variation
+```{r, warning=FALSE}
+ggplot(data = Legumes,
+       aes(x = weight, y = as.factor(Strain), colour = Block)) +
+  geom_point(size =1, alpha = 0.5) +
+  facet_wrap(~ Plant) +
+  labs(
+    x = "Weight",
+    y = "Strain",
+    title = "Figure 5 - Looking at Block variation version 2",
+    colour = "Block"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```
+
+Wanted to know which strain was best in each line.  So facet wrapped on PLant with the x axis as strain.
+```{r, warning=FALSE}
+ggplot(data = Legumes,
+       aes(x = as.factor(Strain), y = weight)) +
+  geom_point() +
+  facet_wrap(~ Plant) +
+  labs(
+    x = "Strain",
+    y = "Weight",
+    title = "Figure 6 - Separating plants",
+    colour = "Plant"
+  ) +
+  theme(
+    panel.grid=element_blank(),
+    axis.text.x = element_text(angle=90),
+    panel.background = element_rect(fill = "white",
+                                    colour = "black")
+    )
+```
+
+##CONCLUSION
+There are some strains which increase plant size over others.  For example 1075 seems to work well in a number of varieties.  There is big differences in plant size.
+
+Would have liked to compared plant size against control lines.
 
 ##Stuff NOT to do
 
@@ -171,7 +193,7 @@ Legumes_Av
 ```
 
 
-
+Boxplot of the data
 ```{r}
 ggplot(data = Legumes,
        aes(x = as.factor(Strain), y = weight)) +
